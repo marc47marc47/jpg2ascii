@@ -1,0 +1,24 @@
+[package]
+name = "jpg2ascii"
+version = "0.1.0"
+edition = "2021"
+description = "Convert images to ASCII art with a Rust library and CLI."
+license = "MIT OR Apache-2.0"
+repository = "https://example.com/repo"
+
+[dependencies]
+image = "0.24"
+clap = { version = "4", features = ["derive"] }
+rayon = "1.8"
+anyhow = "1"
+atty = "0.2"
+windows-sys = { version = "0.52", features = ["Win32_System_Console", "Win32_Foundation"] }
+
+[dev-dependencies]
+pretty_assertions = "1"
+insta = { version = "1", features = ["yaml"] }
+criterion = "0.5"
+
+[[bench]]
+name = "convert_bench"
+harness = false
