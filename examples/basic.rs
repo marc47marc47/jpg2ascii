@@ -7,7 +7,7 @@ use jpg2ascii::{convert_path_to_ascii, Config};
 fn main() -> anyhow::Result<()> {
     // Optional arg: path to image. If not provided, search ./examples for the first image.
     let args: Vec<String> = env::args().skip(1).collect();
-    let img_path = if let Some(p) = args.get(0) {
+    let img_path = if let Some(p) = args.first() {
         PathBuf::from(p)
     } else if let Some(p) = find_example_image()? {
         println!("[info] Using example image: {}", p.display());

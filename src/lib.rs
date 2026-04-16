@@ -193,13 +193,7 @@ fn map_luma_to_char(lum: f32, charset: &str, invert: bool) -> char {
         chars = DEFAULT_CHARSET.chars().collect();
     }
     let n = chars.len();
-    let mut v = if invert { 1.0 - lum } else { lum };
-    if v < 0.0 {
-        v = 0.0;
-    }
-    if v > 1.0 {
-        v = 1.0;
-    }
+    let v = if invert { 1.0 - lum } else { lum }.clamp(0.0, 1.0);
     let idx = (v * (n as f32 - 1.0)).round() as usize;
     chars[idx]
 }
