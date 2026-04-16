@@ -4,7 +4,18 @@ version = "0.1.0"
 edition = "2021"
 description = "Convert images to ASCII art with a Rust library and CLI."
 license = "MIT OR Apache-2.0"
-repository = "https://example.com/repo"
+repository = "https://github.com/marc47marc47/jpg2ascii"
+homepage = "https://github.com/marc47marc47/jpg2ascii"
+readme = "README.md"
+keywords = ["ascii", "image", "converter", "cli", "art"]
+categories = ["command-line-utilities", "multimedia::images"]
+exclude = [
+    "samples/",
+    "dist/",
+    "a.txt",
+    "build.sh",
+    ".github/",
+]
 
 [dependencies]
 image = "0.25"
@@ -12,6 +23,8 @@ clap = { version = "4", features = ["derive"] }
 rayon = "1.8"
 anyhow = "1"
 atty = "0.2"
+
+[target.'cfg(windows)'.dependencies]
 windows-sys = { version = "0.52", features = ["Win32_System_Console", "Win32_Foundation"] }
 
 [dev-dependencies]
