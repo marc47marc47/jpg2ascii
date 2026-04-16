@@ -19,7 +19,10 @@ fn main() -> anyhow::Result<()> {
         std::process::exit(1);
     };
 
-    let cfg = Config { width: Some(80), ..Default::default() };
+    let cfg = Config {
+        width: Some(80),
+        ..Default::default()
+    };
     let ascii = convert_path_to_ascii(&img_path, &cfg)?;
     println!("{}", ascii);
     Ok(())
@@ -27,8 +30,10 @@ fn main() -> anyhow::Result<()> {
 
 fn find_example_image() -> anyhow::Result<Option<PathBuf>> {
     let dir = PathBuf::from("examples");
-    if !dir.exists() { return Ok(None); }
-    let exts = ["jpg", "jpeg", "png", "gif"]; 
+    if !dir.exists() {
+        return Ok(None);
+    }
+    let exts = ["jpg", "jpeg", "png", "gif"];
     for entry in fs::read_dir(dir)? {
         let entry = entry?;
         let p = entry.path();

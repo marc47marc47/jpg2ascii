@@ -1,9 +1,9 @@
-use image::{imageops::FilterType, DynamicImage, GenericImageView};
+use anyhow::Result;
 use image::codecs::gif::GifDecoder;
 use image::AnimationDecoder;
-use std::io::Cursor;
+use image::{imageops::FilterType, DynamicImage, GenericImageView};
 use rayon::prelude::*;
-use anyhow::Result;
+use std::io::Cursor;
 use std::path::Path;
 
 pub const DEFAULT_CHARSET: &str = " .:-=+*#%@"; // low -> high density
@@ -16,11 +16,11 @@ pub struct Config {
     pub charset: String,
     pub invert: bool,
     pub color: bool,
-    pub brightness: f32, // -1.0..1.0; 0.0 = none
-    pub gamma: f32,      // 1.0 = no change
-    pub contrast: f32,   // 1.0 = no change
+    pub brightness: f32,       // -1.0..1.0; 0.0 = none
+    pub gamma: f32,            // 1.0 = no change
+    pub contrast: f32,         // 1.0 = no change
     pub threshold: Option<u8>, // 0..=255, None = continuous
-    pub aspect: f32,     // character height/width ratio, ~2.0 for many fonts
+    pub aspect: f32,           // character height/width ratio, ~2.0 for many fonts
     pub filter: FilterType,
 }
 
@@ -67,7 +67,10 @@ pub fn convert_gif_bytes_to_ascii_frames(bytes: &[u8], cfg: &Config) -> Result<V
     Ok(out)
 }
 
-pub fn convert_gif_path_to_ascii_frames<P: AsRef<Path>>(path: P, cfg: &Config) -> Result<Vec<String>> {
+pub fn convert_gif_path_to_ascii_frames<P: AsRef<Path>>(
+    path: P,
+    cfg: &Config,
+) -> Result<Vec<String>> {
     let bytes = std::fs::read(path)?;
     convert_gif_bytes_to_ascii_frames(&bytes, cfg)
 }
@@ -91,7 +94,11 @@ pub fn convert_image_to_ascii_lines(img: &DynamicImage, cfg: &Config) -> Vec<Str
                 // blend alpha on black background
                 let (r, g, b) = if a < 255 {
                     let af = (a as f32) / 255.0;
-                    ((r as f32 * af) as u8, (g as f32 * af) as u8, (b as f32 * af) as u8)
+                    (
+                        (r as f32 * af) as u8,
+                        (g as f32 * af) as u8,
+                        (b as f32 * af) as u8,
+                    )
                 } else {
                     (r, g, b)
                 };
@@ -101,7 +108,11 @@ pub fn convert_image_to_ascii_lines(img: &DynamicImage, cfg: &Config) -> Vec<Str
                     lum = (lum + cfg.brightness).clamp(0.0, 1.0);
                 }
                 if let Some(t) = cfg.threshold {
-                    lum = if (lum * 255.0).round() as u8 >= t { 1.0 } else { 0.0 };
+                    lum = if (lum * 255.0).round() as u8 >= t {
+                        1.0
+                    } else {
+                        0.0
+                    };
                 } else {
                     if cfg.gamma != 1.0 && cfg.gamma > 0.0 {
                         lum = lum.powf(1.0 / cfg.gamma);
@@ -138,12 +149,18 @@ fn target_size((w, h): (u32, u32), cfg: &Config) -> (u32, u32) {
         (Some(w_set), None, s) => {
             tw = w_set as f32;
             th = (h as f32 / aspect) * (tw / w as f32);
-            if let Some(s) = s { tw *= s; th *= s; }
+            if let Some(s) = s {
+                tw *= s;
+                th *= s;
+            }
         }
         (None, Some(h_set), s) => {
             th = h_set as f32 / aspect;
             tw = (w as f32) * (th * aspect / h as f32); // invert derivation
-            if let Some(s) = s { tw *= s; th *= s; }
+            if let Some(s) = s {
+                tw *= s;
+                th *= s;
+            }
         }
         (None, None, Some(s)) => {
             tw = w as f32 * s;
@@ -156,8 +173,12 @@ fn target_size((w, h): (u32, u32), cfg: &Config) -> (u32, u32) {
         }
     }
 
-    if tw < 1.0 { tw = 1.0; }
-    if th < 1.0 { th = 1.0; }
+    if tw < 1.0 {
+        tw = 1.0;
+    }
+    if th < 1.0 {
+        th = 1.0;
+    }
     (tw.round() as u32, th.round() as u32)
 }
 
@@ -173,8 +194,12 @@ fn map_luma_to_char(lum: f32, charset: &str, invert: bool) -> char {
     }
     let n = chars.len();
     let mut v = if invert { 1.0 - lum } else { lum };
-    if v < 0.0 { v = 0.0; }
-    if v > 1.0 { v = 1.0; }
+    if v < 0.0 {
+        v = 0.0;
+    }
+    if v > 1.0 {
+        v = 1.0;
+    }
     let idx = (v * (n as f32 - 1.0)).round() as usize;
     chars[idx]
 }

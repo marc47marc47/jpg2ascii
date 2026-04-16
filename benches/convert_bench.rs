@@ -8,7 +8,10 @@ pub fn bench_convert(c: &mut Criterion) {
         group.throughput(Throughput::Elements((w as u64) * 100));
         group.bench_with_input(BenchmarkId::from_parameter(w), &w, |b, &width| {
             b.iter(|| {
-                let cfg = Config { width: Some(width), ..Default::default() };
+                let cfg = Config {
+                    width: Some(width),
+                    ..Default::default()
+                };
                 let _ = convert_path_to_ascii(img, &cfg).unwrap();
             });
         });
@@ -18,4 +21,3 @@ pub fn bench_convert(c: &mut Criterion) {
 
 criterion_group!(benches, bench_convert);
 criterion_main!(benches);
-

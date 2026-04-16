@@ -4,10 +4,13 @@ use std::path::PathBuf;
 
 use clap::{ArgAction, Parser};
 
-use jpg2ascii::{convert_bytes_to_ascii, convert_gif_bytes_to_ascii_frames, convert_gif_path_to_ascii_frames, convert_path_to_ascii, Config, DEFAULT_CHARSET};
+use jpg2ascii::{
+    convert_bytes_to_ascii, convert_gif_bytes_to_ascii_frames, convert_gif_path_to_ascii_frames,
+    convert_path_to_ascii, Config, DEFAULT_CHARSET,
+};
 
 #[derive(Parser, Debug)]
-#[command(name = "jpg2ascii", version, about = "Convert images to ASCII art")] 
+#[command(name = "jpg2ascii", version, about = "Convert images to ASCII art")]
 struct Cli {
     /// Input image path or '-' for STDIN
     input: PathBuf,
@@ -121,7 +124,9 @@ fn main() -> anyhow::Result<()> {
         };
         let mut first = true;
         for frame in frames {
-            if !first { print!("\x1b[2J\x1b[H"); }
+            if !first {
+                print!("\x1b[2J\x1b[H");
+            }
             first = false;
             println!("{}", frame);
             std::thread::sleep(delay);
@@ -170,7 +175,10 @@ fn ansi_supported() -> bool {
     // Heuristic using TERM
     if let Ok(term) = std::env::var("TERM") {
         let t = term.to_ascii_lowercase();
-        return t.contains("xterm") || t.contains("ansi") || t.contains("vt100") || t.contains("screen");
+        return t.contains("xterm")
+            || t.contains("ansi")
+            || t.contains("vt100")
+            || t.contains("screen");
     }
     // On modern Windows terminals truecolor is typically supported; default to true
     cfg!(windows)
@@ -178,12 +186,19 @@ fn ansi_supported() -> bool {
 
 #[cfg(windows)]
 fn enable_windows_ansi() -> bool {
-    use windows_sys::Win32::System::Console::{GetConsoleMode, GetStdHandle, SetConsoleMode, ENABLE_VIRTUAL_TERMINAL_PROCESSING, STD_OUTPUT_HANDLE};
+    use windows_sys::Win32::System::Console::{
+        GetConsoleMode, GetStdHandle, SetConsoleMode, ENABLE_VIRTUAL_TERMINAL_PROCESSING,
+        STD_OUTPUT_HANDLE,
+    };
     unsafe {
         let handle = GetStdHandle(STD_OUTPUT_HANDLE);
-        if handle == 0 { return false; }
+        if handle == 0 {
+            return false;
+        }
         let mut mode: u32 = 0;
-        if GetConsoleMode(handle, &mut mode) == 0 { return false; }
+        if GetConsoleMode(handle, &mut mode) == 0 {
+            return false;
+        }
         let new_mode = mode | ENABLE_VIRTUAL_TERMINAL_PROCESSING;
         SetConsoleMode(handle, new_mode) != 0
     }
